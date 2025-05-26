@@ -68,15 +68,15 @@
 
         <ul class="menu-inner py-1">
             <!-- Dashboard -->
-            <li class="menu-item active">
-                <a href="{{ url('/') }}" class="menu-link">
+            <li class="menu-item  {{ Request::is('/') ? 'active' : '' }}">
+                <a href="{{ url('/dashboard') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-home-circle"></i>
                 <div data-i18n="Analytics">Dashboard</div>
                 </a>
             </li>
 
-            <li class="menu-item">
-                <a href="{{ route('customers') }}" class="menu-link {{ Request::is('customers') ? 'active' : '' }}">
+            <li class="menu-item  {{ Request::is('customers*') ? 'active' : '' }}">
+                <a href="{{ route('customers.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-collection"></i>
                 <div data-i18n="Basic">Customers</div>
                 </a>

@@ -12,7 +12,8 @@ class CustomerController extends Controller
      */
     public function index() 
     {
-        return view('customer.index');
+        $customers = Customer::all();
+        return view('customers.index', compact('customers'));
     }
 
     /**
@@ -20,7 +21,7 @@ class CustomerController extends Controller
      */
     public function create()
     {
-        //
+        return view('customers.create');
     }
 
     /**
@@ -28,7 +29,15 @@ class CustomerController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:255',
+        ]);
+
+        Customer::create($request->all());
+
+        return redirect()->route('customers.index')->with('success', 'Pelanggan berhasil ditambahkan.');
     }
 
     /**
@@ -44,7 +53,7 @@ class CustomerController extends Controller
      */
     public function edit(Customer $customer)
     {
-        //
+        return view('customers.edit', compact('customer'));
     }
 
     /**
@@ -52,7 +61,15 @@ class CustomerController extends Controller
      */
     public function update(Request $request, Customer $customer)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:255',
+        ]);
+
+        $customer->update($request->all());
+
+        return redirect()->route('customers.index')->with('success', 'Data pelanggan diperbarui.');
     }
 
     /**
@@ -60,6 +77,7 @@ class CustomerController extends Controller
      */
     public function destroy(Customer $customer)
     {
-        //
+        $customer->delete();
+        return redirect()->route('customers.index')->with('success', 'Pelanggan dihapus.');
     }
 }
