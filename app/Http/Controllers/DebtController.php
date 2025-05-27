@@ -13,9 +13,18 @@ class DebtController extends Controller
      */
     public function index()
     {
-        $debts = Debt::with('customer')->latest()->get();
-        return view('debts.index', compact('debts'));
+        // $debts = Debt::with('customer')->latest()->get();
+        // return view('debts.index', compact('debts'));
 
+        $customers = Customer::with('debts.payments')->get()->map(function ($customer) {
+            $totalDebt = $customer->debts->sum('amount');
+            $totalPaid = $customer->debts->flatMap->payments->sum('amount');
+
+            $customer->total_debt = $totalDebt - $totalPaid;
+
+            return $customer;
+        });
+        return view('debts.index', compact('customers'));
     }
 
     /**
@@ -33,12 +42,27 @@ class DebtController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-        'customer_id' => 'required|exists:customers,id',
-        'amount' => 'required|numeric|min:0.01',
-        'note' => 'nullable|string',
-    ]);
+            'customer_id' => 'required|exists:customers,id',
+            'amount' => 'required|numeric|min:0.01',
+            'note' => 'nullable|string',
+        ]);
 
-        Debt::create($validated);
+        // BUAT entri hutang baru, bukan update yang lama
+        Debt::create([
+            'customer_id' => $validated['customer_id'],
+            'amount' => $validated['amount'],
+            'note' => $validated['note'],
+        ]);
+
+        // Cari entri debt berdasarkan customer_id, atau buat baru jika belum ada
+        // $debt = Debt::firstOrCreate(
+        //     ['customer_id' => $request->customer_id],
+        //     ['amount' => 0]
+        // );
+
+        // Tambahkan jumlah hutang
+        // $debt->amount += $request->amount;
+        // $debt->save();
 
         return redirect()->route('debts.index')->with('success', 'Hutang berhasil dicatat.');
     }
@@ -68,16 +92,7 @@ class DebtController extends Controller
         'payment_amount' => 'required|numeric|min:1|max:' . $debt->amount,
         ]);
 
-        $debt->amount -= $request->payment_amount;
-
-        if ($debt->amount <= 0) {
-            $debt->amount = 0;
-            $debt->paid_at = now();
-        }
-
-        $debt->save();
-
-        return redirect()->route('debts.index')->with('success', 'Pembayaran hutang berhasil.');
+        return redirect()->route('payments.create', ['debt_id' => $debt->id]);
     }
 
     /**

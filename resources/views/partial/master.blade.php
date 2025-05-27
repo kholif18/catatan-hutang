@@ -44,6 +44,10 @@
 
     <!-- Page CSS -->
 
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+
     <!-- Helpers -->
     <script src="{{ asset('template/assets/vendor/js/helpers.js') }}"></script>
 
@@ -120,6 +124,10 @@
     <script src="{{ asset('template/assets/vendor/js/menu.js') }}"></script>
     <!-- endbuild -->
 
+    <!-- Select2 JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <!-- Vendors JS -->
     <script src="{{ asset('template/assets/vendor/libs/apex-charts/apexcharts.js') }}"></script>
 
@@ -131,5 +139,7 @@
 
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
+    @stack('scripts')
+
   </body>
 </html>

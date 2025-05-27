@@ -62,14 +62,32 @@
                 @csrf
                 <div class="mb-3">
                     <label for="customer_id" class="form-label">Pelanggan</label>
-                    <select name="customer_id" id="customer_id" class="form-control" required>
+                    <select name="customer_id" id="customer_id" class="form-select" required>
                         @foreach ($customers as $customer)
                             <option value="{{ $customer->id }}" {{ old('customer_id') == $customer->id ? 'selected' : '' }}>{{ $customer->name }}</option>
                         @endforeach
                     </select>
-                        @error('customer_id')
-                            <span class="text-danger">{{ $message }}</span>
-                        @enderror
+                    {{-- <div class="input-group">
+                        <!-- Input tampilkan nama customer yang dipilih -->
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="customer_name"
+                            placeholder="Pilih pelanggan..."
+                            aria-label="Customer name"
+                            aria-describedby="button-addon-customer"
+                        >
+                        <!-- Tombol untuk membuka modal -->
+                        <button class="btn btn-outline-primary" type="button" id="button-addon-customer" data-bs-toggle="modal" data-bs-target="#customerModal">
+                            Cari
+                        </button>
+                    </div> --}}
+
+                    <!-- input hidden untuk mengirim customer_id -->
+                    {{-- <input type="hidden" name="customer_id" id="customer_id"> --}}
+                    @error('customer_id')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror
                 </div>
                 <div class="mb-3">
                     <label for="amount" class="form-label">Jumlah Hutang</label>
@@ -84,3 +102,53 @@
         </div>
     </div>
 @endsection
+
+<!-- Modal -->
+<div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="customerModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="customerModalLabel">Pilih Pelanggan</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body">
+            <select id="select_customer" class="form-control select2" style="width: 100%;">
+                <option value="">-- Pilih Pelanggan --</option>
+                @foreach ($customers as $customer)
+                    <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        </div>
+    </div>
+</div>
+
+
+@push('scripts')
+    <script>
+        $(document).ready(function() {
+            $('#customer_id').select2({
+                placeholder: 'Pilih pelanggan',
+                allowClear: true
+            });
+        });
+    </script>
+    {{-- <script>
+        $(document).ready(function () {
+            $('#select_customer').select2({
+                theme: 'bootstrap4',
+                dropdownParent: $('#customerModal')
+            });
+
+            $('#select_customer').on('change', function () {
+                const id = $(this).val();
+                const name = $('#select_customer option:selected').text();
+
+                $('#customer_id').val(id);
+                $('#customer_name').val(name);
+
+                $('#customerModal').modal('hide');
+            });
+        });
+    </script> --}}
+@endpush

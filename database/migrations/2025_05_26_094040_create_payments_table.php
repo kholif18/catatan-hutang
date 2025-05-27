@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('debt_id')->constrained()->onDelete('cascade');
             $table->integer('amount');
             $table->text('note')->nullable();
-            $table->date('payment_date');
+            $table->timestamp('payment_date');
             $table->timestamps();
         });
     }

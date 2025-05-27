@@ -53,34 +53,39 @@
     @endif
     <div class="table-responsive text-nowrap">
         <table class="table table-hover">
-        <thead>
-            <tr>
-            <th>#</th>
-            <th>Nama</th>
-            <th>Jumlah</th>
-            <th>Catatan</th>
-            <th>Tanggal</th>
-            <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody class="table-border-bottom-0">
-            @forelse ($debts as $index => $debt)
+            <thead>
                 <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td>{{ $debt->customer->name }}</td>
-                    <td>Rp{{ number_format($debt->amount, 0, ',', '.') }}</td>
-                    <td>{{ $debt->note ?? '-' }}</td>
-                    <td>{{ $debt->created_at->format('d M Y H:i') }}</td>
-                    <td>
-                        <a href="{{ route('payments.create', ['debt_id' => $debt->id]) }}" class="btn btn-sm btn-warning">Bayar Hutang</a>
-                    </td>
+                <th>#</th>
+                <th>Nama</th>
+                <th>Jumlah</th>
+                <th>Catatan</th>
+                <th>Tanggal</th>
+                <th>Actions</th>
                 </tr>
-                @empty
+            </thead>
+            <tbody class="table-border-bottom-0">
+                    @foreach ($customers as $index => $customer)
+                        @php
+                            $lastDebt = $customer->debts->last();
+                            if ($customer->debts->isEmpty()) continue;
+                            $lastDebt = $customer->debts->last();
+                        @endphp
                     <tr>
-                        <td colspan="6" class="text-center">Belum ada data hutang.</td>
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $customer->name }}</td>
+                        <td>Rp{{ number_format($customer->total_debt, 0, ',', '.') }}</td>
+                        <td>{{ $lastDebt?->note ?? '-' }}</td>
+                        <td>{{ $lastDebt?->created_at?->format('d M Y H:i') ?? '-' }}</td>
+                        <td>
+                            @if ($customer->total_debt > 0)
+                                <a href="{{ route('payments.create', ['debt_id' => $customer->debts->last()?->id]) }}" class="btn btn-sm btn-warning">Bayar Hutang</a>
+                            @else
+                                <a href="{{ route('payments.detail', ['debt_id' => $customer->debts->last()?->id]) }}" class="btn btn-sm btn-info">View Detail</a>
+                            @endif
+                        </td>
                     </tr>
-                @endforelse
-        </tbody>
+                @endforeach
+            </tbody>
         </table>
     </div>
 </div>

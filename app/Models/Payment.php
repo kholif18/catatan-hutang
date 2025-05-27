@@ -12,6 +12,9 @@ class Payment extends Model
         'note',
         'payment_date',
     ];
+    protected $casts = [
+        'payment_date' => 'datetime',
+    ];
 
     // Relasi ke model Debt (jika ingin)
     public function debt()

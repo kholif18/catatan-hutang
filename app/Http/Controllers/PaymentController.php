@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Debt;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 
@@ -20,10 +21,13 @@ class PaymentController extends Controller
      */
     public function create(Request $request)
     {
-            $debtId = $request->query('debt_id');
-            $debt = \App\Models\Debt::findOrFail($debtId);
+        $debt = Debt::with('customer', 'payments')->findOrFail($request->debt_id);
 
-            return view('payments.create', compact('debt'));
+        // Ambil history hutang + pembayaran gabungan untuk customer ini
+        $history = $debt->customer->debtAndPaymentHistory();
+        
+        return view('payments.create', compact('debt', 'history'));
+
     }
 
     /**
@@ -32,20 +36,21 @@ class PaymentController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-        'debt_id' => 'required|exists:debts,id',
-        'amount' => 'required|integer|min:1',
-        'payment_date' => 'required|date',
-        'note' => 'nullable|string',
-    ]);
+            'debt_id' => 'required|exists:debts,id',
+            'amount' => 'required|integer|min:1',
+            'payment_date' => 'required|date',
+            'note' => 'nullable|string',
+        ]);
 
-    Payment::create([
-        'debt_id' => $request->debt_id,
-        'amount' => $request->amount,
-        'note' => $request->note,
-        'payment_date' => $request->payment_date,
-    ]);
+        // Simpan pembayaran baru
+        Payment::create([
+            'debt_id' => $request->debt_id,
+            'amount' => $request->amount,
+            'note' => $request->note,
+            'payment_date' => now(),
+        ]);
 
-    return redirect()->route('debts.index')->with('success', 'Pembayaran berhasil dicatat.');
+        return redirect()->route('debts.index')->with('success', 'Pembayaran berhasil dicatat.');
     }
 
     /**
@@ -71,6 +76,15 @@ class PaymentController extends Controller
     {
         //
     }
+
+    public function detail(Request $request)
+    {
+        $debt = Debt::with('customer', 'payments')->findOrFail($request->debt_id);
+        $history = $debt->customer->debtAndPaymentHistory();
+
+        return view('payments.detail', compact('debt', 'history'));
+    }
+
 
     /**
      * Remove the specified resource from storage.
