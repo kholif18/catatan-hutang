@@ -7,7 +7,7 @@
 @section('breadcrumb')
     @parent
         <li class="breadcrumb-item">
-        <a href="{{ route('debts.index') }}">Bayar Hutang</a>
+        <a href="{{ route('debts.index') }}">Hutang</a>
     </li>
     <li class="breadcrumb-item active">
         <a href="{{ url()->current() }}">

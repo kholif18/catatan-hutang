@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Debt;
 use Illuminate\Database\Eloquent\Model;
 
 class Customer extends Model

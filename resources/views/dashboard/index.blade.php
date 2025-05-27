@@ -4,6 +4,10 @@
     Dashboard
 @endsection
 
+@section('breadcrumb')
+{{-- kosongkan breadcrumb di dashboard --}}
+@endsection
+
 @section('content')
 <div class="row mb-4">
     <div class="col-md-6 col-xl-3">

@@ -76,7 +76,7 @@
             <ol class="breadcrumb breadcrumb-style1">
               @section('breadcrumb')
                 <li class="breadcrumb-item">
-                    <a href="{{ url('/dashboard') }}">Home</a>
+                    <a href="{{ url('/') }}">Home</a>
                 </li>
               @show
             </ol>
