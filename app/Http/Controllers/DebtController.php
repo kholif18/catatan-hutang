@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Debt;
+use App\Models\Customer;
 use Illuminate\Http\Request;
 
 class DebtController extends Controller
@@ -12,7 +13,9 @@ class DebtController extends Controller
      */
     public function index()
     {
-        //
+        $debts = Debt::with('customer')->latest()->get();
+        return view('debts.index', compact('debts'));
+
     }
 
     /**
@@ -20,7 +23,8 @@ class DebtController extends Controller
      */
     public function create()
     {
-        //
+        $customers = Customer::all();
+        return view('debts.create', compact('customers'));
     }
 
     /**
@@ -28,7 +32,15 @@ class DebtController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+        'customer_id' => 'required|exists:customers,id',
+        'amount' => 'required|numeric|min:0.01',
+        'note' => 'nullable|string',
+    ]);
+
+        Debt::create($validated);
+
+        return redirect()->route('debts.index')->with('success', 'Hutang berhasil dicatat.');
     }
 
     /**
@@ -44,7 +56,7 @@ class DebtController extends Controller
      */
     public function edit(Debt $debt)
     {
-        //
+        return view('debts.edit', compact('debt'));
     }
 
     /**
@@ -52,7 +64,20 @@ class DebtController extends Controller
      */
     public function update(Request $request, Debt $debt)
     {
-        //
+        $request->validate([
+        'payment_amount' => 'required|numeric|min:1|max:' . $debt->amount,
+        ]);
+
+        $debt->amount -= $request->payment_amount;
+
+        if ($debt->amount <= 0) {
+            $debt->amount = 0;
+            $debt->paid_at = now();
+        }
+
+        $debt->save();
+
+        return redirect()->route('debts.index')->with('success', 'Pembayaran hutang berhasil.');
     }
 
     /**

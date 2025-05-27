@@ -1,14 +1,14 @@
 @extends('partial.master')
 
 @section('title')
-    Customers
+    Hutang
 @endsection
 
 @section('breadcrumb')
     @parent
     <li class="breadcrumb-item active">
         <a href="{{ url()->current() }}">
-            Customers
+            Hutang
         </a>
     </li>
 @endsection
@@ -17,10 +17,10 @@
 <div class="card">
     <div class="row">
         <div class="col-9">
-            <h5 class="card-header">Daftar Pelanggan</h5>
+            <h5 class="card-header">Daftar Hutang Pelanggan</h5>
         </div>
         <div class="col-3 text-center">
-            <a href="{{ route('customers.create') }}" class="btn btn-primary mt-3">Tambah Pelanggan</a>
+            <a href="{{ route('debts.create') }}" class="btn btn-primary mt-3">Catat Hutang Baru</a>
         </div>
     </div>
     {{-- Alert dari session --}}
@@ -55,28 +55,31 @@
         <table class="table table-hover">
         <thead>
             <tr>
+            <th>#</th>
             <th>Nama</th>
-            <th>No HP</th>
-            <th>Alamat</th>
+            <th>Jumlah</th>
+            <th>Catatan</th>
+            <th>Tanggal</th>
             <th>Actions</th>
             </tr>
         </thead>
         <tbody class="table-border-bottom-0">
-            @foreach($customers as $customer)
-                        <tr>
-                <td>{{ $customer->name }}</td>
-                <td>{{ $customer->phone }}</td>
-                <td>{{ $customer->address }}</td>
-                <td>
-                    <a href="{{ route('customers.edit', $customer) }}" class="btn btn-sm btn-warning">Edit</a>
-                    <form action="{{ route('customers.destroy', $customer) }}" method="POST" style="display:inline">
-                        @csrf
-                        @method('DELETE')
-                        <button class="btn btn-sm btn-danger" onclick="return confirm('Yakin ingin hapus?')">Hapus</button>
-                    </form>
-                </td>
-            </tr>
-            @endforeach
+            @forelse ($debts as $index => $debt)
+                <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td>{{ $debt->customer->name }}</td>
+                    <td>Rp{{ number_format($debt->amount, 0, ',', '.') }}</td>
+                    <td>{{ $debt->note ?? '-' }}</td>
+                    <td>{{ $debt->created_at->format('d M Y H:i') }}</td>
+                    <td>
+                        <a href="{{ route('payments.create', ['debt_id' => $debt->id]) }}" class="btn btn-sm btn-warning">Bayar Hutang</a>
+                    </td>
+                </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" class="text-center">Belum ada data hutang.</td>
+                    </tr>
+                @endforelse
         </tbody>
         </table>
     </div>

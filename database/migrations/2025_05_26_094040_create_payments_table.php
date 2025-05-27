@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('customer_id')->constrained()->onDelete('cascade');
-            $table->decimal('amount', 12, 2);
+            $table->foreignId('debt_id')->constrained()->onDelete('cascade');
+            $table->integer('amount');
             $table->text('note')->nullable();
             $table->date('payment_date');
             $table->timestamps();
