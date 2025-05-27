@@ -52,6 +52,7 @@
                         <th>Total Hutang</th>
                         <th>Total Pembayaran</th>
                         <th>Sisa Hutang</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -83,6 +84,9 @@
                             <td>Rp {{ number_format($totalDebt, 0, ',', '.') }}</td>
                             <td>Rp {{ number_format($totalPaid, 0, ',', '.') }}</td>
                             <td>Rp {{ number_format($remaining, 0, ',', '.') }}</td>
+                            <td>
+                                <a href="{{ route('payments.create', ['debt_id' => $customer->debts->last()?->id]) }}" class="btn btn-sm btn-warning">Bayar Hutang</a>
+                            </td>
                         </tr>
                     @empty
                         <tr>
