@@ -18,8 +18,10 @@ class DatabaseSeeder extends Seeder
             'name' => 'Admin',
             'username' => 'admin', // pastikan kolom username sudah ada
             'email' => 'admin@example.com',
+            'role' => 'superadmin',
             'password' => Hash::make('admin'), // ganti dengan password aman
             'email_verified_at' => now(),
         ]);
+        
     }
 }

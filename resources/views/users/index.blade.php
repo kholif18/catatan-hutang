@@ -1,14 +1,14 @@
 @extends('partial.master')
 
 @section('title')
-    Hutang
+    User
 @endsection
 
 @section('breadcrumb')
     @parent
     <li class="breadcrumb-item active">
         <a href="{{ url()->current() }}">
-            Hutang
+            User
         </a>
     </li>
 @endsection
@@ -23,6 +23,9 @@
                 <a href="{{ route('users.create') }}" class="btn btn-primary mt-3">+ Tambah User</a>
             </div>
         </div>
+        @if ($errors->has('avatar'))
+            <div class="text-danger">{{ $errors->first('avatar') }}</div>
+        @endif
         <div class="table-responsive text-nowrap">
             <table class="table">
                 <thead class="thead-dark">
@@ -43,11 +46,13 @@
                             <td>{{ $user->role }}</td>
                             <td>
                                 <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-warning">Edit</a>
-                                <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus user ini?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="btn btn-sm btn-danger">Hapus</button>
-                                </form>
+                                @if($user->role !== 'superadmin')
+                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus user ini?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-sm btn-danger">Hapus</button>
+                                    </form>
+                                @endif
                             </td>
                         </tr>
                     @empty

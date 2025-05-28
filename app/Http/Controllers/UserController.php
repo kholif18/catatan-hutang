@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+
 
 class UserController extends Controller
 {
@@ -30,17 +32,23 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required',
+            'username' => 'required|unique:users,username',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6|confirmed',
+            'role' => 'required|in:admin,user',
         ]);
 
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+        $user = new User();
+        $user->name = $validated['name'];
+        $user->username = $validated['username'];
+        $user->email = $validated['email'];
+        $user->password = bcrypt($validated['password']);
+        $user->role = $validated['role'];
+        $user->avatar = '1.png';
+
+        $user->save();
 
         return redirect()->route('users.index')->with('success', 'User berhasil ditambahkan.');
     }
@@ -56,7 +64,7 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id, User $user)
+    public function edit(User $user)
     {
         return view('users.edit', compact('user'));
     }
@@ -64,22 +72,49 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id, User $user)
+    public function update(Request $request, User $user)
     {
         $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-        ]);
+        'name' => 'required|string|max:255',
+        'username' => 'required|string|max:255|unique:users,username,' . $user->id,
+        'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+        'role' => 'required|in:admin,user',
+        'password' => 'nullable|confirmed|min:6',
+        'avatar' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+    ]);
 
-        $user->update($request->only('name', 'email'));
+    $user->name = $request->name;
+    $user->username = $request->username;
+    $user->email = $request->email;
+    $user->role = $request->role;
 
-        return redirect()->route('users.index')->with('success', 'User berhasil diperbarui.');
+    if ($request->filled('password')) {
+        $user->password = bcrypt($request->password);
+    }
+
+    // Upload avatar jika ada file yang diunggah
+    if ($request->hasFile('avatar')) {
+        // Hapus avatar lama jika bukan default
+        if ($user->avatar && $user->avatar != '1.png') {
+            Storage::delete('public/avatars/' . $user->avatar);
+        }
+
+        $file = $request->file('avatar');
+        $filename = uniqid() . '.' . $file->getClientOriginalExtension();
+        $file->storeAs('public/avatars', $filename);
+
+        $user->avatar = $filename;
+    }
+
+    $user->save();
+
+    return redirect()->route('users.index')->with('success', 'User berhasil diperbarui.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id, User $user)
+    public function destroy(User $user)
     {
         $user->delete();
         return redirect()->route('users.index')->with('success', 'User berhasil dihapus.');
