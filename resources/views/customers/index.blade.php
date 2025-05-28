@@ -63,7 +63,7 @@
         </thead>
         <tbody class="table-border-bottom-0">
             @forelse($customers as $customer)
-                        <tr>
+            <tr>
                 <td>{{ $customer->name }}</td>
                 <td>{{ $customer->phone }}</td>
                 <td>{{ $customer->address }}</td>

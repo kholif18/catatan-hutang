@@ -11,20 +11,45 @@ class DebtController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // $debts = Debt::with('customer')->latest()->get();
-        // return view('debts.index', compact('debts'));
+        // $customers = Customer::whereHas('debts')
+        // ->with('debts.payments')
+        // ->get()
+        // ->map(function ($customer) {
+        //     $totalDebt = $customer->debts->sum('amount');
+        //     $totalPaid = $customer->debts->flatMap->payments->sum('amount');
 
-        $customers = Customer::with('debts.payments')->get()->map(function ($customer) {
-            $totalDebt = $customer->debts->sum('amount');
-            $totalPaid = $customer->debts->flatMap->payments->sum('amount');
+        //     $customer->total_debt = $totalDebt - $totalPaid;
 
-            $customer->total_debt = $totalDebt - $totalPaid;
+        //     return $customer;
+        // });
 
-            return $customer;
-        });
-        return view('debts.index', compact('customers'));
+        // return view('debts.index', compact('customers'));
+
+        $search = $request->input('search');
+
+        $customers = Customer::whereHas('debts') // hanya customer yang punya hutang
+            ->when($search, function ($query, $search) {
+                // filter berdasarkan nama, phone, atau alamat customer
+                $query->where(function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%")
+                    ->orWhere('address', 'like', "%{$search}%");
+                });
+            })
+            ->with('debts.payments')
+            ->get()
+            ->map(function ($customer) {
+                $totalDebt = $customer->debts->sum('amount');
+                $totalPaid = $customer->debts->flatMap->payments->sum('amount');
+
+                $customer->total_debt = $totalDebt - $totalPaid;
+
+                return $customer;
+            });
+
+        return view('debts.index', compact('customers', 'search'));
     }
 
     /**
@@ -53,16 +78,6 @@ class DebtController extends Controller
             'amount' => $validated['amount'],
             'note' => $validated['note'],
         ]);
-
-        // Cari entri debt berdasarkan customer_id, atau buat baru jika belum ada
-        // $debt = Debt::firstOrCreate(
-        //     ['customer_id' => $request->customer_id],
-        //     ['amount' => 0]
-        // );
-
-        // Tambahkan jumlah hutang
-        // $debt->amount += $request->amount;
-        // $debt->save();
 
         return redirect()->route('debts.index')->with('success', 'Hutang berhasil dicatat.');
     }

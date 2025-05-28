@@ -64,12 +64,15 @@
                 </tr>
             </thead>
             <tbody class="table-border-bottom-0">
-                    @forelse ($customers as $index => $customer)
-                        @php
-                            $lastDebt = $customer->debts->last();
-                            if ($customer->debts->isEmpty()) continue;
-                            $lastDebt = $customer->debts->last();
-                        @endphp
+                @forelse ($customers as $index => $customer)
+                    @php
+                        if ($customer->debts->isEmpty()) {
+                            // Gunakan @continue Blade untuk lompat iterasi
+                            echo '@continue';
+                        }
+
+                        $lastDebt = $customer->debts->last();
+                    @endphp
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td>{{ $customer->name }}</td>
@@ -86,9 +89,9 @@
                     </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="text-center">Belum ada data transaksi.</td>
+                    <td colspan="6" class="text-center">Belum ada data transaksi.</td>
                 </tr>
-            @endforelse
+                @endforelse
             </tbody>
         </table>
     </div>

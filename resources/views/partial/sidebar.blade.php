@@ -39,7 +39,7 @@
             <li class="menu-item  {{ Request::is('debts*') ? 'active' : '' }}">
                 <a href="{{ route('debts.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-wallet"></i>
-                <div data-i18n="Basic">Hutang</div>
+                <div data-i18n="Basic">Debts</div>
                 </a>
             </li>
 
@@ -58,6 +58,13 @@
                 <span class="menu-header-text">System Setting</span>
             </li>
 
+            <li class="menu-item  {{ Request::is('reports*') ? 'active' : '' }}">
+                <a href="{{ route('reports.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bxs-report"></i>
+                <div data-i18n="Basic">Reports</div>
+                </a>
+            </li>
+            
             <li class="menu-item  {{ Request::is('settings*') ? 'active' : '' }}">
                 <a href="{{ route('settings.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-slider"></i>
