@@ -43,14 +43,18 @@
                     @foreach ($history as $index => $item)
                         <tr>
                             <td>{{ \Carbon\Carbon::parse($item->date)->format('d M Y H:i') }}</td>
-                            <td>
+                            <td class="text-success">
                                 @if ($item->type === 'payment')
-                                    Rp{{ number_format($item->amount, 0, ',', '.') }}
+                                    Rp {{ number_format($item->amount, 0, ',', '.') }}
+                                @else
+                                    -
                                 @endif
                             </td>
-                            <td>
+                            <td class="text-danger">
                                 @if ($item->type === 'debt')
-                                    Rp{{ number_format($item->amount, 0, ',', '.') }}
+                                    Rp {{ number_format($item->amount, 0, ',', '.') }}
+                                @else
+                                    -
                                 @endif
                             </td>
                             <td>{{ $item->note ?? '-' }}</td>

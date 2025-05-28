@@ -106,14 +106,6 @@
     </div>
     <!-- / Layout wrapper -->
 
-    <div class="buy-now">
-      <a
-        href="#"
-        class="btn btn-danger btn-buy-now"
-        >UP</a
-      >
-    </div>
-
     <!-- Core JS -->
     <!-- build:js assets/vendor/js/core.js -->
     <script src="{{ asset('template/assets/vendor/libs/jquery/jquery.js') }}"></script>

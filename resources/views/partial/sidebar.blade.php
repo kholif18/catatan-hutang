@@ -93,8 +93,8 @@
                 <span class="menu-header-text">User Setting</span>
             </li>
 
-            <li class="menu-item  {{ Request::is('user*') ? 'active' : '' }}">
-                <a href="#" class="menu-link">
+            <li class="menu-item  {{ Request::is('users*') ? 'active' : '' }}">
+                <a href="{{ route('users.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-user"></i>
                 <div data-i18n="Basic">User</div>
                 </a>
