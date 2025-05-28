@@ -5,6 +5,7 @@ use App\Http\Controllers\DebtController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 
@@ -25,6 +26,10 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('payments', PaymentController::class)->only(['create', 'store']);
     Route::get('/payments/detail', [PaymentController::class, 'detail'])->name('payments.detail');
+
+    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+    Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
+
 
 });
 
