@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -95,13 +96,13 @@ class UserController extends Controller
     // Upload avatar jika ada file yang diunggah
     if ($request->hasFile('avatar')) {
         // Hapus avatar lama jika bukan default
-        if ($user->avatar && $user->avatar != '1.png') {
-            Storage::delete('public/avatars/' . $user->avatar);
+        if ($user->avatar && $user->avatar != 'avatar.png') {
+            Storage::disk('public')->delete('avatars/' . $user->avatar);
         }
 
         $file = $request->file('avatar');
-        $filename = uniqid() . '.' . $file->getClientOriginalExtension();
-        $file->storeAs('public/avatars', $filename);
+        $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+        $file->storeAs('avatars', $filename, 'public');
 
         $user->avatar = $filename;
     }
