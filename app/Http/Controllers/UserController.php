@@ -93,6 +93,14 @@ class UserController extends Controller
         $user->password = bcrypt($request->password);
     }
 
+    // Cek jika reset_avatar diset
+    if ($request->input('reset_avatar') == 1) {
+        if ($user->avatar && $user->avatar != '1.png') {
+            Storage::delete('public/avatars/' . $user->avatar);
+        }
+        $user->avatar = 'avatar.png';
+    }
+
     // Upload avatar jika ada file yang diunggah
     if ($request->hasFile('avatar')) {
         // Hapus avatar lama jika bukan default

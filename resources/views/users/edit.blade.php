@@ -25,7 +25,7 @@
         @method('PUT')
             <div class="card-body">
                 <div class="d-flex align-items-start align-items-sm-center gap-4">
-                <img src="{{ $user->avatar && $user->avatar !== '1.png' ? asset('storage/avatars/' . $user->avatar) : asset('avatar.png') }}"
+                <img id="uploadedAvatar" src="{{ $user->avatar && $user->avatar !== 'avatar.png' ? asset('storage/avatars/' . $user->avatar) : asset('avatar.png') }}"
                     alt="user-avatar"
                     class="d-block rounded"
                     height="100"
@@ -49,6 +49,7 @@
                     <i class="bx bx-reset d-block d-sm-none"></i>
                     <span class="d-none d-sm-block">Reset</span>
                     </button>
+                    <input type="hidden" name="reset_avatar" id="reset_avatar" value="0">
 
                     <p class="text-muted mb-0">Allowed JPG, GIF or PNG. Max size of 800K</p>
                 </div>
@@ -100,10 +101,14 @@
 @push('scripts')
     <script>
         function resetAvatar() {
-            const avatarInput = document.getElementById('upload');
-            avatarInput.value = null;
-            // Optional: reset image preview to default
-            document.getElementById('uploadedAvatar').src = "{{ asset('template/assets/img/avatars/1.png') }}";
+            // Set input reset_avatar ke 1
+            document.getElementById('reset_avatar').value = 1;
+
+            // Reset tampilan preview avatar (opsional)
+            document.getElementById('uploadedAvatar').src = '{{ asset("avatar.png") }}';
+
+            // Kosongkan input file
+            document.getElementById('upload').value = '';
         }
     </script>
 @endpush

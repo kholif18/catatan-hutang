@@ -64,7 +64,7 @@
                 </tr>
             </thead>
             <tbody class="table-border-bottom-0">
-                    @foreach ($customers as $index => $customer)
+                    @forelse ($customers as $index => $customer)
                         @php
                             $lastDebt = $customer->debts->last();
                             if ($customer->debts->isEmpty()) continue;
@@ -84,7 +84,11 @@
                             @endif
                         </td>
                     </tr>
-                @endforeach
+                @empty
+                <tr>
+                    <td colspan="5" class="text-center">Belum ada data transaksi.</td>
+                </tr>
+            @endforelse
             </tbody>
         </table>
     </div>

@@ -62,7 +62,7 @@
             </tr>
         </thead>
         <tbody class="table-border-bottom-0">
-            @foreach($customers as $customer)
+            @forelse($customers as $customer)
                         <tr>
                 <td>{{ $customer->name }}</td>
                 <td>{{ $customer->phone }}</td>
@@ -76,7 +76,11 @@
                     </form>
                 </td>
             </tr>
-            @endforeach
+            @empty
+                <tr>
+                    <td colspan="5" class="text-center">Belum ada data pelanggan.</td>
+                </tr>
+            @endforelse
         </tbody>
         </table>
     </div>
