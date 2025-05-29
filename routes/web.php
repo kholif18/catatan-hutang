@@ -10,35 +10,42 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\TestUploadController;
 
 Route::middleware('auth')->group(function () {
+    // Route untuk semua user yang terautentikasi
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // Resource routes
     Route::resource('users', UserController::class);
-    
     Route::resource('customers', CustomerController::class);
+    Route::get('paid', [CustomerController::class, 'paid'])->name('customers.paid');
     Route::resource('debts', DebtController::class);
-
+    
+    // Payments
     Route::resource('payments', PaymentController::class)->only(['create', 'store']);
     Route::get('/payments/detail', [PaymentController::class, 'detail'])->name('payments.detail');
 
-    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
-    Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
+    // Hanya untuk admin/superadmin
+    Route::middleware('role:superadmin,admin')->group(function () {
+        Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
 
-        // Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
-    Route::prefix('reports')->group(function() {
-        Route::get('/', [ReportController::class, 'index'])->name('reports.index');
-        Route::get('/export', [ReportController::class, 'export'])->name('reports.export');
+        // Reports
+        Route::prefix('reports')->name('reports.')->group(function() {
+            Route::get('/', [ReportController::class, 'index'])->name('index');
+            Route::get('/export', [ReportController::class, 'export'])->name('export');
+        });
+
+        // Database Backup
+        Route::prefix('admin/database')->name('backup.')->group(function() {
+            Route::get('/', [BackupController::class, 'index'])->name('index');
+            Route::get('/export', [BackupController::class, 'export'])->name('export');
+            Route::post('/import', [BackupController::class, 'import'])->name('import');
+        });
     });
-
-    Route::get('/admin/database', [BackupController::class, 'index'])->name('backup.index');
-    Route::get('/admin/database/export', [BackupController::class, 'export'])->name('backup.export');
-    Route::post('/admin/database/import', [BackupController::class, 'import'])->name('backup.import');
-
 });
 
 require __DIR__.'/auth.php';

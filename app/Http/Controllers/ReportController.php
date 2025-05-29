@@ -15,27 +15,29 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
-        // Jika request 'from' dan 'to' tidak ada, pakai tanggal awal dan akhir bulan ini
-        // $from = $request->from ?? now()->startOfMonth()->toDateString();
-        // $to = $request->to ?? now()->endOfMonth()->toDateString();
         $from = $request->input('from') ?: now()->startOfMonth()->toDateString();
         $to = $request->input('to') ?: now()->endOfMonth()->toDateString();
 
-        // Ambil data hutang antara tanggal dari - sampai, menggunakan kolom 'debt_date'
-        $debts = Debt::whereBetween('debt_date', [$from, $to])->get();
+        // Ambil data hutang dengan pagination
+        $debts = Debt::with('customer')
+                    ->whereBetween('debt_date', [$from, $to])
+                    ->orderBy('debt_date', 'desc')
+                    ->paginate(10, ['*'], 'debts_page');
 
-        // Ambil data pembayaran antara tanggal dari - sampai, menggunakan kolom 'payment_date'
-        $payments = Payment::with('customer')
+        // Ambil data pembayaran dengan pagination
+        $payments = Payment::with('debt.customer')
                     ->whereBetween('payment_date', [$from, $to])
-                    ->get();
+                    ->orderBy('payment_date', 'desc')
+                    ->paginate(10, ['*'], 'payments_page');
 
-        // Hitung total hutang dan total pembayaran
-        $totalDebts = $debts->sum('amount');
-        $totalPayments = $payments->sum('amount');
+        // Total tetap dihitung dari keseluruhan data (bukan yang hanya tampil di halaman ini)
+        $totalDebts = Debt::whereBetween('debt_date', [$from, $to])->sum('amount');
+        $totalPayments = Payment::whereBetween('payment_date', [$from, $to])->sum('amount');
         $sisaHutang = $totalDebts - $totalPayments;
 
-        // Kirim data ke view laporan
-        return view('reports.index', compact('debts', 'payments', 'totalDebts', 'totalPayments', 'sisaHutang', 'from', 'to'));
+        return view('reports.index', compact(
+            'debts', 'payments', 'totalDebts', 'totalPayments', 'sisaHutang', 'from', 'to'
+        ));
     }
     
     public function export(Request $request)

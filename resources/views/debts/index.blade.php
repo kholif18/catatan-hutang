@@ -94,25 +94,35 @@
         @if ($lastPage > 1)
         <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center">
+                {{-- Tombol First --}}
+                <li class="page-item {{ $currentPage == 1 ? 'disabled' : '' }}">
+                    <a class="page-link" href="{{ $customers->url(1) }}" aria-label="First"
+                    ><i class="tf-icon bx bx-chevrons-left"></i
+                    ></a>
+                </li>
                 {{-- Tombol Previous --}}
                 <li class="page-item {{ $currentPage == 1 ? 'disabled' : '' }}">
                     <a class="page-link" href="{{ $customers->url($currentPage - 1) }}" aria-label="Previous">
-                        <i class="tf-icon bx bx-chevrons-left"></i>
+                        <i class="tf-icon bx bx-chevron-left"></i>
                     </a>
                 </li>
-
                 {{-- Nomor halaman --}}
                 @for ($page = 1; $page <= $lastPage; $page++)
                     <li class="page-item {{ $currentPage == $page ? 'active' : '' }}">
                         <a class="page-link" href="{{ $customers->url($page) }}">{{ $page }}</a>
                     </li>
                 @endfor
-
                 {{-- Tombol Next --}}
                 <li class="page-item {{ $currentPage == $lastPage ? 'disabled' : '' }}">
                     <a class="page-link" href="{{ $customers->url($currentPage + 1) }}" aria-label="Next">
                         <i class="tf-icon bx bx-chevrons-right"></i>
                     </a>
+                </li>
+                {{-- Tombol Last --}}
+                <li class="page-item {{ $currentPage == $lastPage ? 'disabled' : '' }}">
+                    <a class="page-link" href="{{ $customers->url($lastPage) }}" aria-label="Last"
+                    ><i class="tf-icon bx bx-chevrons-right"></i
+                    ></a>
                 </li>
             </ul>
         </nav>

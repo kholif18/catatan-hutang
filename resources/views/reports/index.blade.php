@@ -112,6 +112,37 @@
                                         @endforeach
                                     </tbody>
                                 </table>
+                                @php
+                                    $currentPage = $debts->currentPage();
+                                    $lastPage = $debts->lastPage();
+                                @endphp
+
+                                @if ($lastPage > 1)
+                                <nav aria-label="Page navigation payments">
+                                    <ul class="pagination justify-content-center">
+                                        {{-- Tombol Previous --}}
+                                        <li class="page-item {{ $currentPage == 1 ? 'disabled' : '' }}">
+                                            <a class="page-link" href="{{ $debts->previousPageUrl() }}" aria-label="Previous">
+                                                <i class="tf-icon bx bx-chevron-left"></i>
+                                            </a>
+                                        </li>
+
+                                        {{-- Nomor halaman --}}
+                                        @for ($page = 1; $page <= $lastPage; $page++)
+                                            <li class="page-item {{ $currentPage == $page ? 'active' : '' }}">
+                                                <a class="page-link" href="{{ $debts->url($page) }}">{{ $page }}</a>
+                                            </li>
+                                        @endfor
+
+                                        {{-- Tombol Next --}}
+                                        <li class="page-item {{ $currentPage == $lastPage ? 'disabled' : '' }}">
+                                            <a class="page-link" href="{{ $debts->nextPageUrl() }}" aria-label="Next">
+                                                <i class="tf-icon bx bx-chevron-right"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -142,6 +173,37 @@
                                         @endforeach
                                     </tbody>
                                 </table>
+                                @php
+                                    $currentPage = $payments->currentPage();
+                                    $lastPage = $payments->lastPage();
+                                @endphp
+    
+                                @if ($lastPage > 1)
+                                <nav aria-label="Page navigation payments">
+                                    <ul class="pagination justify-content-center">
+                                        {{-- Tombol Previous --}}
+                                        <li class="page-item {{ $currentPage == 1 ? 'disabled' : '' }}">
+                                            <a class="page-link" href="{{ $payments->previousPageUrl() }}" aria-label="Previous">
+                                                <i class="tf-icon bx bx-chevron-left"></i>
+                                            </a>
+                                        </li>
+    
+                                        {{-- Nomor halaman --}}
+                                        @for ($page = 1; $page <= $lastPage; $page++)
+                                            <li class="page-item {{ $currentPage == $page ? 'active' : '' }}">
+                                                <a class="page-link" href="{{ $payments->url($page) }}">{{ $page }}</a>
+                                            </li>
+                                        @endfor
+    
+                                        {{-- Tombol Next --}}
+                                        <li class="page-item {{ $currentPage == $lastPage ? 'disabled' : '' }}">
+                                            <a class="page-link" href="{{ $payments->nextPageUrl() }}" aria-label="Next">
+                                                <i class="tf-icon bx bx-chevron-right"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                                @endif
                             </div>
                         </div>
                     </div>

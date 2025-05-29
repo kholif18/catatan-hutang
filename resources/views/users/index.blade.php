@@ -41,18 +41,29 @@
                     @forelse ($users as $index => $user)
                         <tr>
                             <td>{{ $index + 1 }}</td>
-                            <td>{{ $user->name }}</td>
+                            <td>
+                                {{ $user->name }}
+                                @if(auth()->id() === $user->id)
+                                    <span class="badge bg-success">Online</span>
+                                @endif
+                            </td>
                             <td>{{ $user->email }}</td>
                             <td>{{ $user->role }}</td>
                             <td>
                                 <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-warning">Edit</a>
-                                @if($user->role !== 'superadmin')
-                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus user ini?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button class="btn btn-sm btn-danger">Hapus</button>
-                                    </form>
-                                @endif
+                                @can('delete', $user)
+                                    @if($user->role !== 'superadmin')
+                                        <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus user ini?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button class="btn btn-sm btn-danger">Hapus</button>
+                                        </form>
+                                    @endif
+                                @else
+                                    <button class="btn btn-danger btn-sm" disabled title="Anda tidak memiliki izin">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                @endcan
                             </td>
                         </tr>
                     @empty

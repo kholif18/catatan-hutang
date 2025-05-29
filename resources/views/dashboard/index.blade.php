@@ -11,34 +11,34 @@
 @section('content')
 <div class="row mb-4">
     <div class="col-md-6 col-xl-3">
-        <div class="card bg-primary text-white mb-3">
+        <div class="card shadow-none border border-primary mb-3">
         <div class="card-header">Total Hutang</div>
         <div class="card-body">
-            <h2 class="card-title text-white">Rp {{ number_format($totalDebt, 0, ',', '.') }}</h2>
+            <h2 class="card-title text-primary">Rp {{ number_format($totalDebt, 0, ',', '.') }}</h2>
         </div>
         </div>
     </div>
     <div class="col-md-6 col-xl-3">
-        <div class="card bg-success text-white mb-3">
+        <div class="card shadow-none border border-success mb-3">
         <div class="card-header">Total Pembayaran</div>
         <div class="card-body">
-            <h2 class="card-title text-white">Rp {{ number_format($totalPaid, 0, ',', '.') }}</h2>
+            <h2 class="card-title text-success">Rp {{ number_format($totalPaid, 0, ',', '.') }}</h2>
         </div>
         </div>
     </div>
     <div class="col-md-6 col-xl-3">
-        <div class="card bg-danger text-white mb-3">
+        <div class="card shadow-none border border-danger mb-3">
         <div class="card-header">Sisa Hutang</div>
         <div class="card-body">
-            <h2 class="card-title text-white">Rp {{ number_format($remainingDebt, 0, ',', '.') }}</h2>
+            <h2 class="card-title text-danger">Rp {{ number_format($remainingDebt, 0, ',', '.') }}</h2>
         </div>
         </div>
     </div>
     <div class="col-md-6 col-xl-3">
-        <div class="card bg-info text-white mb-3">
+        <div class="card shadow-none border border-info mb-3">
         <div class="card-header">Jumlah Pelanggan</div>
         <div class="card-body">
-            <h2 class="card-title text-white">{{ $customerCount }}</h2>
+            <h2 class="card-title text-info">{{ $customerCount }}</h2>
         </div>
         </div>
     </div>
@@ -46,7 +46,6 @@
 <div class="card mb-4">
     <div class="card-header">Daftar Pelanggan dengan Hutang Aktif</div>
     <div class="card-body">
-        <!-- Daftar Pelanggan dengan Hutang Aktif -->
         <div>
             <table class="table table-striped">
                 <thead>
@@ -60,17 +59,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @php
-                        // Filter pelanggan yang punya sisa hutang > 0
-                        $customersWithDebt = $customers->filter(function($customer) {
-                            $totalDebt = $customer->debts->sum('amount');
-                            $totalPaid = $customer->debts->flatMap->payments->sum('amount');
-                            $remaining = $totalDebt - $totalPaid;
-                            return $remaining > 0;
-                        });
-                    @endphp
-
-                    @forelse ($customersWithDebt as $customer)
+                    @forelse ($paginatedCustomers as $customer)
                         @php
                             $totalDebt = $customer->debts->sum('amount');
                             $totalPaid = $customer->debts->flatMap->payments->sum('amount');
@@ -94,14 +83,48 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center">Tidak ada pelanggan dengan hutang aktif.</td>
+                            <td colspan="6" class="text-center">Tidak ada pelanggan dengan hutang aktif.</td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
+
+            {{-- Paginasi --}}
+            @php
+                $currentPage = $paginatedCustomers->currentPage();
+                $lastPage = $paginatedCustomers->lastPage();
+            @endphp
+
+            @if ($lastPage > 1)
+                <nav>
+                    <ul class="pagination justify-content-center">
+                        {{-- Tombol Previous --}}
+                        <li class="page-item {{ $currentPage == 1 ? 'disabled' : '' }}">
+                            <a class="page-link" href="{{ $paginatedCustomers->url($currentPage - 1) }}" aria-label="Previous">
+                                <i class="tf-icon bx bx-chevron-left"></i>
+                            </a>
+                        </li>
+
+                        {{-- Nomor Halaman --}}
+                        @for ($page = 1; $page <= $lastPage; $page++)
+                            <li class="page-item {{ $currentPage == $page ? 'active' : '' }}">
+                                <a class="page-link" href="{{ $paginatedCustomers->url($page) }}">{{ $page }}</a>
+                            </li>
+                        @endfor
+
+                        {{-- Tombol Next --}}
+                        <li class="page-item {{ $currentPage == $lastPage ? 'disabled' : '' }}">
+                            <a class="page-link" href="{{ $paginatedCustomers->url($currentPage + 1) }}" aria-label="Next">
+                                <i class="tf-icon bx bx-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            @endif
         </div>
     </div>
 </div>
+
 <div class="card">
     <div class="card-header">Riwayat Transaksi Terbaru</div>
     <div class="card-body">

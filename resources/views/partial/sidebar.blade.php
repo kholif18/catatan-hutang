@@ -43,6 +43,13 @@
                 </a>
             </li>
 
+            <li class="menu-item  {{ Request::is('customers.paid*') ? 'active' : '' }}">
+                <a href="{{ route('customers.paid') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-dollar"></i>
+                <div data-i18n="Basic">Lunas</div>
+                </a>
+            </li>
+
             <li class="menu-header small text-uppercase">
                 <span class="menu-header-text">User Setting</span>
             </li>

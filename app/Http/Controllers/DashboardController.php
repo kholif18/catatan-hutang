@@ -4,22 +4,42 @@ namespace App\Http\Controllers;
 
 use App\Models\Debt;
 use App\Models\Customer;
-use Illuminate\Http\Request;
+// use Illuminate\Http\Request;
 use App\Models\Payment;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // Ambil semua customer dengan hutang dan pembayaran
         $customers = Customer::with('debts.payments')->get();
 
-        // Hitung total hutang, total pembayaran dan sisa hutang
+        // Filter yang punya sisa hutang > 0
+        $customersWithDebt = $customers->filter(function($customer) {
+            $totalDebt = $customer->debts->sum('amount');
+            $totalPaid = $customer->debts->flatMap->payments->sum('amount');
+            return $totalDebt - $totalPaid > 0;
+        });
+
+        // Manual pagination
+        $page = request()->input('page', 1);
+        $perPage = 10;
+        $offset = ($page - 1) * $perPage;
+        $paginatedCustomers = new LengthAwarePaginator(
+            $customersWithDebt->slice($offset, $perPage)->values(),
+            $customersWithDebt->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        // Hitung total hutang, total pembayaran dan sisa hutang (untuk semua customers)
         $totalDebt = $customers->flatMap->debts->sum('amount');
         $totalPaid = $customers->flatMap->debts->flatMap->payments->sum('amount');
         $remainingDebt = $totalDebt - $totalPaid;
 
-        // Total customer
         $customerCount = $customers->count();
 
         // Ambil 5 hutang terbaru
@@ -53,7 +73,8 @@ class DashboardController extends Controller
             'remainingDebt',
             'customerCount',
             'recentActivities',
-            'customers' 
+            'paginatedCustomers'  // ganti dari 'customers' ke 'paginatedCustomers'
+
         ));
     }
 }
