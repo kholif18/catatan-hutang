@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Customer;
 use Illuminate\Database\Eloquent\Model;
 
 class Payment extends Model
@@ -20,5 +21,10 @@ class Payment extends Model
     public function debt()
     {
         return $this->belongsTo(Debt::class);
+    }
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
     }
 }

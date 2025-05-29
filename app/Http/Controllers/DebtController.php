@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Debt;
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+
 
 class DebtController extends Controller
 {
@@ -13,43 +15,85 @@ class DebtController extends Controller
      */
     public function index(Request $request)
     {
-        // $customers = Customer::whereHas('debts')
-        // ->with('debts.payments')
-        // ->get()
-        // ->map(function ($customer) {
-        //     $totalDebt = $customer->debts->sum('amount');
-        //     $totalPaid = $customer->debts->flatMap->payments->sum('amount');
-
-        //     $customer->total_debt = $totalDebt - $totalPaid;
-
-        //     return $customer;
-        // });
-
-        // return view('debts.index', compact('customers'));
-
         $search = $request->input('search');
+        $perPage = 10;
+        $page = $request->input('page', 1);
 
-        $customers = Customer::whereHas('debts') // hanya customer yang punya hutang
+        // Ambil customer yang punya hutang dan sesuai filter
+        $query = Customer::whereHas('debts')
             ->when($search, function ($query, $search) {
-                // filter berdasarkan nama, phone, atau alamat customer
-                $query->where(function($q) use ($search) {
+                $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
                     ->orWhere('phone', 'like', "%{$search}%")
                     ->orWhere('address', 'like', "%{$search}%");
                 });
             })
             ->with('debts.payments')
-            ->get()
-            ->map(function ($customer) {
-                $totalDebt = $customer->debts->sum('amount');
-                $totalPaid = $customer->debts->flatMap->payments->sum('amount');
+            ->get();
 
-                $customer->total_debt = $totalDebt - $totalPaid;
+        // Hitung total hutang dikurangi pembayaran
+        $filtered = $query->map(function ($customer) {
+            $totalDebt = $customer->debts->sum('amount');
+            $totalPaid = $customer->debts->flatMap->payments->sum('amount');
+            $customer->total_debt = $totalDebt - $totalPaid;
+            return $customer;
+        })->filter(function ($customer) {
+            return $customer->total_debt > 0;
+        })->values(); // pastikan index array rapi (0,1,2,...)
 
-                return $customer;
-            });
+        // Buat pagination manual
+        $paginated = new LengthAwarePaginator(
+            $filtered->forPage($page, $perPage),
+            $filtered->count(),
+            $perPage,
+            $page,
+            [
+                'path' => url()->current(),
+                'query' => $request->query(),
+            ]
+        );
 
-        return view('debts.index', compact('customers', 'search'));
+        return view('debts.index', [
+            'customers' => $paginated,
+            'search' => $search,
+        ]);
+        // $search = $request->input('search');
+        // $perPage = 10;
+        // $page = $request->input('page', 1);
+
+        // // Ambil semua data sesuai filter
+        // $query = Customer::whereHas('debts')
+        //     ->when($search, function ($query, $search) {
+        //         $query->where(function($q) use ($search) {
+        //             $q->where('name', 'like', "%{$search}%")
+        //             ->orWhere('phone', 'like', "%{$search}%")
+        //             ->orWhere('address', 'like', "%{$search}%");
+        //         });
+        //     })
+        //     ->with('debts.payments')
+        //     ->get();
+
+        // // Hitung total hutang dikurangi pembayaran
+        // $transformed = $query->map(function ($customer) {
+        //     $totalDebt = $customer->debts->sum('amount');
+        //     $totalPaid = $customer->debts->flatMap->payments->sum('amount');
+        //     $customer->total_debt = $totalDebt - $totalPaid;
+
+        //     return $customer;
+        // })->filter(function ($customer) {
+        //     return $customer->total_debt > 0; // hanya tampilkan yang masih punya hutang
+        // });
+
+        // // Buat paginator manual karena data sudah dimodifikasi
+        // $customers = new LengthAwarePaginator(
+        //     $transformed->forPage($page, $perPage)->values(),
+        //     $transformed->count(),
+        //     $perPage,
+        //     $page,
+        //     ['path' => url()->current(), 'query' => $request->query()]
+        // );
+
+        // return view('debts.index', compact('customers', 'search'));
     }
 
     /**

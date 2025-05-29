@@ -16,8 +16,14 @@
 @section('content')
 <div class="card">
     <div class="row">
-        <div class="col-9">
+        <div class="col-5">
             <h5 class="card-header">Daftar Pelanggan</h5>
+        </div>
+        <div class="col-4 mt-3">
+            <form class="d-flex" method="GET" action="{{ route('customers.index') }}">
+                <input class="form-control me-2" name="search" type="search" placeholder="Cari nama / No HP / alamat" aria-label="Search" value="{{ request('search') }}" />
+                <button class="btn btn-outline-primary" type="submit">Search</button>
+            </form>
         </div>
         <div class="col-3 text-center">
             <a href="{{ route('customers.create') }}" class="btn btn-primary mt-3">Tambah Pelanggan</a>
@@ -38,32 +44,21 @@
         </div>
     @endif
 
-    @if (session('warning'))
-        <div class="alert alert-warning alert-dismissible" role="alert">
-            {{ session('warning') }} 
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
-    @if (session('info'))
-        <div class="alert alert-info alert-dismissible" role="alert">
-            {{ session('info') }} 
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
     <div class="table-responsive text-nowrap">
         <table class="table table-hover">
         <thead>
             <tr>
-            <th>Nama</th>
-            <th>No HP</th>
-            <th>Alamat</th>
-            <th>Actions</th>
+                <th>#</th>
+                <th>Nama</th>
+                <th>No HP</th>
+                <th>Alamat</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody class="table-border-bottom-0">
-            @forelse($customers as $customer)
+            @forelse($customers as $index => $customer)
             <tr>
+                <td>{{ $loop->iteration + ($customers->currentPage() - 1) * $customers->perPage() }}</td>
                 <td>{{ $customer->name }}</td>
                 <td>{{ $customer->phone }}</td>
                 <td>{{ $customer->address }}</td>
@@ -83,6 +78,37 @@
             @endforelse
         </tbody>
         </table>
+        @php
+            $currentPage = $customers->currentPage();
+            $lastPage = $customers->lastPage();
+        @endphp
+
+        @if ($lastPage > 1)
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {{-- Tombol Previous --}}
+                <li class="page-item {{ $currentPage == 1 ? 'disabled' : '' }}">
+                    <a class="page-link" href="{{ $customers->url($currentPage - 1) }}" aria-label="Previous">
+                        <i class="tf-icon bx bx-chevrons-left"></i>
+                    </a>
+                </li>
+
+                {{-- Nomor halaman --}}
+                @for ($page = 1; $page <= $lastPage; $page++)
+                    <li class="page-item {{ $currentPage == $page ? 'active' : '' }}">
+                        <a class="page-link" href="{{ $customers->url($page) }}">{{ $page }}</a>
+                    </li>
+                @endfor
+
+                {{-- Tombol Next --}}
+                <li class="page-item {{ $currentPage == $lastPage ? 'disabled' : '' }}">
+                    <a class="page-link" href="{{ $customers->url($currentPage + 1) }}" aria-label="Next">
+                        <i class="tf-icon bx bx-chevrons-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        @endif
     </div>
 </div>
 @endsection

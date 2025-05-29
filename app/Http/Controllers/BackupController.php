@@ -22,7 +22,7 @@ class BackupController extends Controller
             File::makeDirectory(storage_path('app/backups'));
         }
 
-        $host = 'mariadb-db-1';
+        $host = env('DB_HOST', '127.0.0.1'); // pastikan DB_HOST benar
         $command = sprintf(
             'mysqldump -h%s -u%s -p%s %s > %s',
             escapeshellarg($host),
@@ -42,9 +42,9 @@ class BackupController extends Controller
 
     public function import(Request $request)
     {
-        // Validasi file upload harus ada dan berekstensi sql atau txt
+        // Validasi file upload harus ada dan berekstensi sql atau txt, max 5MB
         $request->validate([
-            'sql_file' => 'required|file|mimes:sql,txt|max:5120', // max 5MB
+            'sql_file' => 'required|file|mimes:sql,txt|max:5120',
         ]);
 
         if (!$request->hasFile('sql_file')) {
@@ -59,24 +59,26 @@ class BackupController extends Controller
 
         $originalName = $file->getClientOriginalName();
 
-        // Simpan file di storage/app/backups
-        $path = $file->storeAs('backups', $originalName, 'local');
+        // Simpan file di storage/app/public/backups
+        $path = $file->storeAs('backups', $originalName, 'public'); 
+        // Catatan: 'public' disini artinya di storage/app/public/backups
 
         if (!$path) {
             return back()->withErrors(['sql_file' => 'Gagal menyimpan file']);
         }
 
-        $fullPath = storage_path('app/' . $path);
+        // Hitung full path file yang sudah disimpan
+        $fullPath = storage_path('app/public/' . $path);
 
         if (!file_exists($fullPath)) {
             return back()->withErrors(['sql_file' => 'File tidak ditemukan di server setelah upload']);
         }
 
-        // Konfigurasi database & host container mysql
+        // Ambil config database
         $db = config('database.connections.mysql');
-        $host = 'mariadb-db-1'; // Ganti sesuai nama container database kamu
+        $host = env('DB_HOST', '127.0.0.1'); // pastikan DB_HOST benar
 
-        // Jalankan perintah import database via mysql client
+        // Command import database (pastikan mysql client tersedia)
         $command = sprintf(
             'mysql -h%s -u%s -p%s %s < %s',
             escapeshellarg($host),
@@ -85,6 +87,8 @@ class BackupController extends Controller
             escapeshellarg($db['database']),
             escapeshellarg($fullPath)
         );
+
+        session()->save();
 
         exec($command, $output, $resultCode);
 

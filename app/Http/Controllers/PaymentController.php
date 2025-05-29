@@ -45,6 +45,7 @@ class PaymentController extends Controller
         // Simpan pembayaran baru
         Payment::create([
             'debt_id' => $request->debt_id,
+            'customer_id' => Debt::find($request->debt_id)->customer_id,
             'amount' => $request->amount,
             'note' => $request->note,
             'payment_date' => now(),

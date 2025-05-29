@@ -62,7 +62,7 @@
                 @csrf
                 <div class="form-floating py-1">
                     <input type="text" class="form-control" name="name" id="name" placeholder="Ravaa Creative"
-                        aria-describedby="floatingInputHelp" required value="{{ old('name') }}"
+                        aria-describedby="floatingInputHelp" autofocus required value="{{ old('name') }}"
                     />
                     <label for="name">Nama Pelanggan</label>
                 </div>

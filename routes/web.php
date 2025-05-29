@@ -10,6 +10,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\TestUploadController;
 
 Route::middleware('auth')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
@@ -28,7 +29,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
 
-    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+        // Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::prefix('reports')->group(function() {
+        Route::get('/', [ReportController::class, 'index'])->name('reports.index');
+        Route::get('/export', [ReportController::class, 'export'])->name('reports.export');
+    });
 
     Route::get('/admin/database', [BackupController::class, 'index'])->name('backup.index');
     Route::get('/admin/database/export', [BackupController::class, 'export'])->name('backup.export');

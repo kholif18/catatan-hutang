@@ -65,7 +65,7 @@
                 </a>
             </li>
 
-            <li class="menu-item  {{ Request::is('backup*') ? 'active' : '' }}">
+            <li class="menu-item  {{ Request::is('admin/database*') ? 'active' : '' }}">
                 <a href="{{ route('backup.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-data"></i>
                 <div data-i18n="Basic">Backup</div>

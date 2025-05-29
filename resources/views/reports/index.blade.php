@@ -1,57 +1,179 @@
 @extends('partial.master')
 
 @section('title')
-    Reports
+    Laporan Hutang & Pembayaran
 @endsection
 
 @section('breadcrumb')
     @parent
     <li class="breadcrumb-item active">
         <a href="{{ url()->current() }}">
-            Reports
+            Laporan Hutang & Pembayaran
         </a>
     </li>
 @endsection
 
 @section('content')
     <div class="card">
-        <h5 class="card-header">Laporan Hutang dan Pembayaran</h5>
+        <div class="card-header text-white">
+            <h5 class="mb-0">Laporan Hutang dan Pembayaran</h5>
+        </div>
         <div class="card-body">
-            <form method="GET" action="{{ route('reports.index') }}" class="row mb-4">
+            <form method="GET" action="{{ route('reports.index') }}" class="row mb-4 g-3 align-items-end">
                 <div class="col-md-3">
-                    <label>Dari Tanggal:</label>
+                    <label class="form-label">Dari Tanggal:</label>
                     <input type="date" name="from" value="{{ $from }}" class="form-control">
                 </div>
                 <div class="col-md-3">
-                    <label>Sampai Tanggal:</label>
+                    <label class="form-label">Sampai Tanggal:</label>
                     <input type="date" name="to" value="{{ $to }}" max="{{ date('Y-m-d') }}" class="form-control">
                 </div>
-                <div class="col-md-3 d-flex align-items-end">
-                    <button class="btn btn-primary">Filter</button>
+                <div class="col-md-3">
+                    <button class="btn btn-primary">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                    <a href="{{ route('reports.index') }}" class="btn btn-secondary">
+                        <i class="fas fa-sync-alt"></i> Reset
+                    </a>
+                </div>
+                <div class="col-md-3 text-end">
+                    <div class="btn-group">
+                        <div class="mt-3 d-flex justify-content-between">
+                            <a class="btn btn-outline-primary ms-2" href="{{ route('reports.export', ['format' => 'pdf', 'from' => $from, 'to' => $to]) }}" target="_blank"><i class="bx bxs-file-pdf"></i> PDF</a>
+                            <a class="btn btn-outline-primary ms-2" href="{{ route('reports.export', ['format' => 'excel', 'from' => $from, 'to' => $to]) }}"><i class="bx bxs-file-export"></i> Excel</a>
+                        </div>
+                    </div>
                 </div>
             </form>
 
-            <div class="mb-3">
-                <strong>Total Hutang:</strong> Rp{{ number_format($totalDebts, 0, ',', '.') }}<br>
-                <strong>Total Pembayaran:</strong> Rp{{ number_format($totalPayments, 0, ',', '.') }}<br>
-                <strong>Sisa Hutang:</strong> Rp{{ number_format($sisaHutang, 0, ',', '.') }}
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card border-danger">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Total Hutang</h5>
+                            <h3 class="text-danger">Rp {{ number_format($totalDebts, 0, ',', '.') }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-success">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Total Pembayaran</h5>
+                            <h3 class="text-success">Rp {{ number_format($totalPayments, 0, ',', '.') }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-warning">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Sisa Hutang</h5>
+                            <h3 class="text-warning">Rp {{ number_format($sisaHutang, 0, ',', '.') }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-4">
+                @if($totalDebts > 0)
+                    <div class="progress mt-2">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                            style="width: {{ ($totalPayments/$totalDebts)*100 }}%" 
+                            aria-valuenow="{{ ($totalPayments/$totalDebts)*100 }}" 
+                            aria-valuemin="0" 
+                            aria-valuemax="100">
+                            {{ round(($totalPayments/$totalDebts)*100, 2) }}%
+                        </div>
+                    </div>
+                @endif
             </div>
 
-            <hr>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Detail Hutang</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Nama</th>
+                                            <th>Tanggal</th>
+                                            <th class="text-end">Jumlah</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($debts as $debt)
+                                            <tr>
+                                                <td>{{ $debt->customer->name }}</td>
+                                                <td>{{ \Carbon\Carbon::parse($debt->date)->format('d M Y') }}</td>
+                                                <td class="text-end text-danger">Rp {{ number_format($debt->amount, 0, ',', '.') }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-            <h5>Detail Hutang</h5>
-            <ul>
-                @foreach($debts as $debt)
-                    <li>{{ $debt->customer->name }} - {{ $debt->date }} - Rp{{ number_format($debt->amount, 0, ',', '.') }}</li>
-                @endforeach
-            </ul>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Detail Pembayaran</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Nama</th>
+                                            <th>Tanggal</th>
+                                            <th class="text-end">Jumlah</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($payments as $payment)
+                                            <tr>
+                                                <td>{{ $payment->debt->customer->name ?? 'Tanpa Nama' }}</td>
+                                                <td>{{ \Carbon\Carbon::parse($payment->payment_date)->format('d M Y H:i') }}</td>
+                                                <td class="text-end text-success">Rp {{ number_format($payment->amount, 0, ',', '.') }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            <h5>Detail Pembayaran</h5>
-            <ul>
-                @foreach($payments as $payment)
-                    <li>{{ $payment->customer->name }} - {{ $payment->date }} - Rp{{ number_format($payment->amount, 0, ',', '.') }}</li>
-                @endforeach
-            </ul>
+            <div class="mt-3 d-flex justify-content-between">
+                <div>
+                    @if($debts->count() > 0 || $payments->count() > 0)
+                        <small class="text-muted">
+                            Data ditampilkan: {{ $debts->count() }} hutang dan {{ $payments->count() }} pembayaran
+                        </small>
+                    @else
+                        <div class="alert alert-warning">
+                            Tidak ada data yang ditemukan untuk periode ini
+                        </div>
+                    @endif
+                </div>
+            </div>
         </div>
     </div>
+@endsection
+
+@section('scripts')
+    @parent
+    <script>
+        $(document).ready(function() {
+            // Format tanggal dengan flatpickr jika diperlukan
+            $('input[type="date"]').flatpickr({
+                dateFormat: 'Y-m-d',
+                allowInput: true
+            });
+        });
+    </script>
 @endsection

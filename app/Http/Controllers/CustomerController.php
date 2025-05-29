@@ -10,10 +10,20 @@ class CustomerController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index() 
+    public function index(Request $request) 
     {
-        $customers = Customer::all();
-        return view('customers.index', compact('customers'));
+        $search = $request->input('search');
+        $perPage = 10;
+
+        $customers = Customer::when($search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%")
+                    ->orWhere('address', 'like', "%{$search}%");
+            })
+            ->paginate($perPage)
+            ->appends(['search' => $search]); // agar pagination tetap menyertakan query search
+
+        return view('customers.index', compact('customers', 'search'));
     }
 
     /**
