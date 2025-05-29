@@ -3,16 +3,13 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DebtController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\BackupController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ReportController;
-
-// Route::get('/dashboard', function () {
-//     return view('dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
@@ -32,6 +29,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
 
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+
+    Route::get('/admin/database', [BackupController::class, 'index'])->name('backup.index');
+    Route::get('/admin/database/export', [BackupController::class, 'export'])->name('backup.export');
+    Route::post('/admin/database/import', [BackupController::class, 'import'])->name('backup.import');
 
 });
 

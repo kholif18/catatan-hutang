@@ -68,13 +68,13 @@
                 </div>
                 <div class="form-floating py-1">
                     <input type="text" class="form-control" name="phone" id="phone" placeholder="6281234xxxxxx"
-                        aria-describedby="floatingInputHelp" required value="{{ old('phone') }}"
+                        aria-describedby="floatingInputHelp" value="{{ old('phone') }}"
                     />
                     <label for="phone">No HP</label>
                 </div>
                 <div class="form-floating py-1">
                     <input type="text" class="form-control" name="address" id="address" placeholder="Ds. Ngluyu"
-                        aria-describedby="floatingInputHelp" required value="{{ old('address') }}"
+                        aria-describedby="floatingInputHelp" value="{{ old('address') }}"
                     />
                     <label for="address">Alamat</label>
                 </div>

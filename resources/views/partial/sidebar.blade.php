@@ -64,6 +64,13 @@
                 <div data-i18n="Basic">Reports</div>
                 </a>
             </li>
+
+            <li class="menu-item  {{ Request::is('backup*') ? 'active' : '' }}">
+                <a href="{{ route('backup.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-data"></i>
+                <div data-i18n="Basic">Backup</div>
+                </a>
+            </li>
             
             <li class="menu-item  {{ Request::is('settings*') ? 'active' : '' }}">
                 <a href="{{ route('settings.index') }}" class="menu-link">

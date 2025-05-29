@@ -20,7 +20,7 @@
         <meta name="description" content="" />
 
         <!-- Favicon -->
-        <link rel="icon" type="image/x-icon" href="{{ asset('template/assets/img/favicon/favicon.ico') }}" />
+        <link rel="icon" type="image/x-icon" href="{{ asset('storage/favicon/' . ($setting->favicon ?? 'favicon.png')) }}" />
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -120,11 +120,6 @@
                                         {{ $message }}
                                     </span>
                                 @enderror
-                                @if (Route::has('password.request'))
-                                    <a href="{{ route('password.request') }}">
-                                        <small>Forgot Password?</small>
-                                        </a>
-                                @endif
                             </div>
                             <div class="mb-3">
                             <div class="form-check">

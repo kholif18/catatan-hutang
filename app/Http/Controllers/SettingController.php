@@ -19,6 +19,7 @@ class SettingController extends Controller
         $request->validate([
             'app_name' => 'nullable|string|max:255',
             'logo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'favicon' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
         ]);
 
         $setting = Setting::firstOrNew([]);
@@ -32,6 +33,17 @@ class SettingController extends Controller
         // Simpan logo baru
         $logoPath = $request->file('logo')->store('logo', 'public');
         $setting->logo = basename($logoPath); // Simpan hanya nama file
+    }
+    // Upload Favicon
+    if ($request->hasFile('favicon')) {
+        // Hapus favicon lama jika ada
+        if ($setting->favicon && file_exists(storage_path('app/public/favicon/' . $setting->favicon))) {
+            unlink(storage_path('app/public/favicon/' . $setting->favicon));
+        }
+
+        // Simpan favicon baru
+        $faviconPath = $request->file('favicon')->store('favicon', 'public');
+        $setting->favicon = basename($faviconPath); // Simpan hanya nama file
     }
 
     $setting->app_name = $request->app_name;
