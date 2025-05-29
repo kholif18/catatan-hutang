@@ -16,11 +16,20 @@
 @section('content')
     <div class="card">
         <div class="card-body">
-            @if(session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
+            @if ($errors->any())
+                <div style="color:red;">
+                    <ul>
+                        @foreach ($errors->all() as $err)
+                            <li>{{ $err }}</li>
+                        @endforeach
+                    </ul>
+                </div>
             @endif
-            @if(session('error'))
-                <div class="alert alert-danger">{{ session('error') }}</div>
+
+            @if (session('success'))
+                <div style="color:green;">
+                    {{ session('success') }}
+                </div>
             @endif
             <div class="row">
                 <div class="col-6">
@@ -32,9 +41,9 @@
                     <form action="{{ route('backup.import') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="mb-3 mt-2">
-                            <input type="file" name="sql_file" class="form-control" required>
+                            <input type="file" name="sql_file" class="form-control" accept=".sql,.txt" required>
                         </div>
-                        <button class="btn btn-primary">Import</button>
+                        <button class="btn btn-primary" type="submit" >Import</button>
                     </form>
                 </div>
             </div>

@@ -22,7 +22,15 @@ class BackupController extends Controller
             File::makeDirectory(storage_path('app/backups'));
         }
 
-        $command = "mysqldump -u {$db['username']} -p'{$db['password']}' {$db['database']} > {$path}";
+        $host = 'mariadb-db-1';
+        $command = sprintf(
+            'mysqldump -h%s -u%s -p%s %s > %s',
+            escapeshellarg($host),
+            escapeshellarg($db['username']),
+            escapeshellarg($db['password']),
+            escapeshellarg($db['database']),
+            escapeshellarg($path)
+        );
         exec($command, $output, $result);
 
         if ($result !== 0 || !file_exists($path)) {
@@ -31,24 +39,95 @@ class BackupController extends Controller
 
         return response()->download($path)->deleteFileAfterSend(true);
     }
-    
+
     public function import(Request $request)
     {
+        // Validasi file upload harus ada dan berekstensi sql atau txt
         $request->validate([
-            'sql_file' => 'required|file|mimes:sql',
+            'sql_file' => 'required|file|mimes:sql,txt|max:5120', // max 5MB
         ]);
 
-        $path = $request->file('sql_file')->storeAs('backups', 'import.sql');
-
-        $db = config('database.connections.mysql');
-        $fullPath = storage_path('app/' . $path);
-        $command = "mysql -u {$db['username']} -p'{$db['password']}' {$db['database']} < {$fullPath}";
-        exec($command, $output, $result);
-
-        if ($result === 0) {
-            return back()->with('success', 'Import database berhasil.');
-        } else {
-            return back()->with('error', 'Gagal import database.');
+        if (!$request->hasFile('sql_file')) {
+            return back()->withErrors(['sql_file' => 'File tidak ditemukan']);
         }
+
+        $file = $request->file('sql_file');
+
+        if (!$file->isValid()) {
+            return back()->withErrors(['sql_file' => 'File tidak valid']);
+        }
+
+        $originalName = $file->getClientOriginalName();
+
+        // Simpan file di storage/app/backups
+        $path = $file->storeAs('backups', $originalName, 'local');
+
+        if (!$path) {
+            return back()->withErrors(['sql_file' => 'Gagal menyimpan file']);
+        }
+
+        $fullPath = storage_path('app/' . $path);
+
+        if (!file_exists($fullPath)) {
+            return back()->withErrors(['sql_file' => 'File tidak ditemukan di server setelah upload']);
+        }
+
+        // Konfigurasi database & host container mysql
+        $db = config('database.connections.mysql');
+        $host = 'mariadb-db-1'; // Ganti sesuai nama container database kamu
+
+        // Jalankan perintah import database via mysql client
+        $command = sprintf(
+            'mysql -h%s -u%s -p%s %s < %s',
+            escapeshellarg($host),
+            escapeshellarg($db['username']),
+            escapeshellarg($db['password']),
+            escapeshellarg($db['database']),
+            escapeshellarg($fullPath)
+        );
+
+        exec($command, $output, $resultCode);
+
+        if ($resultCode !== 0) {
+            return back()->withErrors(['sql_file' => 'Gagal import database. Periksa file dan konfigurasi.']);
+        }
+
+        return back()->with('success', 'Database berhasil diimport!');
     }
+    
+    // public function import(Request $request)
+    // {
+    //     $request->validate([
+    //         'sql_file' => 'required|file|mimes:txt,sql',
+    //     ]);
+    //     if ($errors = $request->getSession()->get('errors')) {
+    //         dd($errors->all());
+    //     }
+    //     $file = $request->file('sql_file');
+    //     $path = $file->storeAs('backups', 'import-temp.sql');
+    //     $fullPath = storage_path("app/{$path}");
+
+    //     $db = config('database.connections.mysql');
+    //     $host = 'mariadb-db-1'; // Ganti sesuai nama container MySQL kamu
+    //     $fullPath = storage_path("app/{$path}");
+
+    //     $command = sprintf(
+    //         'mysql -h%s -u%s -p%s %s < %s',
+    //         escapeshellarg($host),
+    //         escapeshellarg($db['username']),
+    //         escapeshellarg($db['password']),
+    //         escapeshellarg($db['database']),
+    //         escapeshellarg($fullPath)
+    //     );
+
+    //     $result = null;
+    //     $output = null;
+    //     exec($command, $output, $result);
+
+    //     if ($result === 0) {
+    //         return back()->with('success', 'Import database berhasil.');
+    //     } else {
+    //         return back()->with('error', 'Gagal mengimport database.');
+    //     }
+    // }
 }
