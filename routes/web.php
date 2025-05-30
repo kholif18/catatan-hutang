@@ -6,7 +6,6 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
@@ -14,9 +13,6 @@ use App\Http\Controllers\DashboardController;
 Route::middleware('auth')->group(function () {
     // Route untuk semua user yang terautentikasi
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    // Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    // Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Resource routes
     Route::resource('users', UserController::class);
