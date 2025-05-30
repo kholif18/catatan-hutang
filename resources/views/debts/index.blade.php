@@ -72,11 +72,7 @@
                         <td>{{ $lastDebt?->note ?? '-' }}</td>
                         <td>{{ $lastDebt?->created_at?->format('d M Y H:i') ?? '-' }}</td>
                         <td>
-                            @if ($customer->total_debt > 0)
-                                <a href="{{ route('payments.create', ['debt_id' => $customer->debts->last()?->id]) }}" class="btn btn-sm btn-warning">Bayar Hutang</a>
-                            @else
-                                <a href="{{ route('payments.detail', ['debt_id' => $customer->debts->last()?->id]) }}" class="btn btn-sm btn-info">View Detail</a>
-                            @endif
+                            <a href="{{ route('payments.create', ['debt_id' => $customer->debts->last()?->id]) }}" class="btn btn-sm btn-warning">Bayar Hutang</a>
                         </td>
                     </tr>
                 @empty

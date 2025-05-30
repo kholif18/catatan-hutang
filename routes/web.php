@@ -14,19 +14,19 @@ use App\Http\Controllers\DashboardController;
 Route::middleware('auth')->group(function () {
     // Route untuk semua user yang terautentikasi
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    // Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Resource routes
     Route::resource('users', UserController::class);
     Route::resource('customers', CustomerController::class);
-    Route::get('paid', [CustomerController::class, 'paid'])->name('customers.paid');
     Route::resource('debts', DebtController::class);
     
     // Payments
     Route::resource('payments', PaymentController::class)->only(['create', 'store']);
     Route::get('/payments/detail', [PaymentController::class, 'detail'])->name('payments.detail');
+    Route::get('/payments/paid', [PaymentController::class, 'index'])->name('payments.index');
 
     // Hanya untuk admin/superadmin
     Route::middleware('role:superadmin,admin')->group(function () {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Debt;
 use App\Models\Payment;
+use App\Models\Customer;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
@@ -13,7 +14,27 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        //
+        $customers = Customer::with('debts.payments')->get();
+
+        $customersLunas = $customers->filter(function ($customer) {
+            $totalDebt = $customer->debts->sum('amount');
+            $totalPaid = $customer->debts->flatMap->payments->sum('amount');
+            return $totalDebt > 0 && ($totalDebt - $totalPaid) <= 0;
+        });
+
+        $page = request()->input('page', 1);
+        $perPage = 10;
+        $offset = ($page - 1) * $perPage;
+
+        $paginatedCustomers = new \Illuminate\Pagination\LengthAwarePaginator(
+            $customersLunas->slice($offset, $perPage)->values(),
+            $customersLunas->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        return view('payments.index', compact('paginatedCustomers'));
     }
 
     /**

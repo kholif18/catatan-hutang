@@ -74,16 +74,24 @@
                         </div>
                         <div class="mb-3 col-md-6">
                             <label for="role" class="form-label">Role</label>
-                            @if(auth()->user()->role === 'superadmin')
-                            <select name="role" class="form-control" required>
-                                <option value="">-- Pilih Role --</option>
-                                <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Admin</option>
-                                <option value="user" {{ old('role', $user->role) == 'user' ? 'selected' : '' }}>User</option>
-                            </select>
-                            @else
-                                <input type="hidden" name="role" value="{{ $user->role }}">
-                                <input type="text" class="form-control" value="{{ ucfirst($user->role) }}" readonly>
-                            @endif
+                                @if(auth()->user()->role === 'superadmin')
+                                    @if(auth()->id() === $user->id && $user->role === 'superadmin')
+                                        {{-- Superadmin mengedit dirinya sendiri: tampilkan role sebagai readonly --}}
+                                        <input type="hidden" name="role" value="{{ $user->role }}">
+                                        <input type="text" class="form-control" value="{{ ucfirst($user->role) }}" readonly>
+                                    @else
+                                        {{-- Superadmin mengedit user lain --}}
+                                        <select name="role" class="form-control" required>
+                                            <option value="">-- Pilih Role --</option>
+                                            <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Admin</option>
+                                            <option value="user" {{ old('role', $user->role) == 'user' ? 'selected' : '' }}>User</option>
+                                        </select>
+                                    @endif
+                                @else
+                                    {{-- Bukan superadmin, tidak bisa mengubah role --}}
+                                    <input type="hidden" name="role" value="{{ $user->role }}">
+                                    <input type="text" class="form-control" value="{{ ucfirst($user->role) }}" readonly>
+                                @endif
                         </div>
                         <div class="mb-3 col-md-6">
                             <label for="password" class="form-label">Password <small class="text-muted">(kosongkan jika tidak ingin ganti)</small></label>
