@@ -9,7 +9,7 @@
             <a href="https://ravaa.my.id" target="_blank" class="footer-link fw-bolder">Ravaa Creative</a>
         </div>
         <div>
-            <a href="https://ravaa.my.id" class="footer-link me-4" target="_blank">Ravaa Creative</a>
+            <span class="footer"><strong>Version</strong> 1.0</span>
         </div>
     </div>
 </footer>
